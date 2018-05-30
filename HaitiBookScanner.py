@@ -7,7 +7,6 @@ from isbntools.app import *
 
 # Service set for Google Books
 service = "goob"
-inventoryWorkbook = openpyxl.load_workbook("BookDatabase.xlsx")
 
 # Main menu
 def main():
@@ -24,12 +23,28 @@ def main():
         check_out()
 # Allows for registration of books into database.
 def register_book():
-    bookInventorySheet = inventoryWorkbook["Book Inventory"]
+    inventory_workbook = openpyxl.load_workbook("BookDatabase.xlsx")
+    book_inventory_sheet = inventory_workbook["Book Inventory"]
     book = input("Scan barcode or type menu: ")
     if book == "menu":
         main()
     else:
-        meta_dict = meta(book, service)
+        isbn_list = []
+        for col in book_inventory_sheet["C"]:
+            isbn_list.append(col.value)
+        if book in isbn_list:
+            #TODO add code to increase "Total Quantity" and "In Stock" by 1
+            print("Exists")
+        else:
+            meta_dict = meta(book, service)
+            authors_list = meta_dict["Authors"]
+            authors = ",".join(authors_list)
+            title = meta_dict["Title"]
+            # Appends the info to the last column, and sets "Total Quantity" and "In Stock" to 1
+            book_inventory_sheet.append([title, authors, book, "1", "1"])
+            inventory_workbook.save("BookDatabase.xlsx")
+            main()
+
         
 # Allows the library to scan books in once returned.
 def check_in():
@@ -37,5 +52,5 @@ def check_in():
 # Allows the library to scan books when checked out.
 def check_out():
     print ("Check out!")
-# meta_dict = meta(book, service)
+
 main()
