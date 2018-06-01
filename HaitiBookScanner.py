@@ -41,12 +41,12 @@ def register_book():
         main()
     else:
         isbn_list = []
-        for col in book_inventory_sheet["C"]:
-            isbn_list.append(col.value)
+        for row in book_inventory_sheet["C"]:
+            isbn_list.append(row.value)
         if book in isbn_list:
-            cell_col = (isbn_list.index(book) + 1)
-            total_quantity = book_inventory_sheet["D" + str(cell_col)]
-            in_stock = book_inventory_sheet["E" + str(cell_col)]
+            cell_row = (isbn_list.index(book) + 1)
+            total_quantity = book_inventory_sheet["D" + str(cell_row)]
+            in_stock = book_inventory_sheet["E" + str(cell_row)]
             total_quantity.value = (total_quantity.value + 1)
             in_stock.value = (in_stock.value + 1)
             print("At least one of this book already registered. Total quantity is now: " + str(total_quantity.value))
@@ -79,18 +79,28 @@ def check_in():
         print("")
         main()
     else:
-        inventory_isbn_list = []
-        checked_out_isbn_list = []
-        for col in book_inventory_sheet["C"]:
-            inventory_isbn_list.append(col.value)
+        inventory_isbn_list = []  # List of all ISBN numbers in Book Inventory sheet
+        checked_out_isbn_list = []  # List of all ISBN numbers in Check In-Out sheet
+        checked_out_row_list = []  # List of row locations that match inputted ISBN in Check In-Out sheet
+        for row in book_inventory_sheet["C"]:
+            inventory_isbn_list.append(row.value)
         if book in inventory_isbn_list:
-            cell_col = (isbn_list.index(book) + 1)
-            in_stock = book_inventory_sheet["E" + str(cell_col)]
-        for col in book_history_sheet["C"]:
-            checked_out_isbn_list.append(col.value)
+            inventory_cell_row = (inventory_isbn_list.index(book) + 1)
+            in_stock = book_inventory_sheet["E" + str(inventory_cell_row)]
+        for row in book_history_sheet["C"]:
+            checked_out_isbn_list.append(row.value)
         if book in checked_out_isbn_list:
-            # TODO this
-
+            for row in checked_out_isbn_list:
+                checked_out_row_list.append(row)
+            i = 0
+            print("")
+            print("Type in the number next to the name of who is checking in the book.")
+            while i <= (len(checked_out_row_list) - 1):
+                print(checked_out_row_list)
+                #name = book_history_sheet[("D" + str(checked_out_row_list[i]))].value
+                #print(name)
+                i += 1
+                # print(str(i + 1) + ": " + )
     inventory_workbook.save("BookDatabase.xlsx")
 
 # Allows the library to scan books when checked out.
@@ -106,11 +116,11 @@ def check_out():
         main()
     else:
         isbn_list = []
-        for col in book_inventory_sheet["C"]:
-            isbn_list.append(col.value)
+        for row in book_inventory_sheet["C"]:
+            isbn_list.append(row.value)
         if book in isbn_list:
-            cell_col = (isbn_list.index(book) + 1)
-            in_stock = book_inventory_sheet["E" + str(cell_col)]
+            cell_row = (isbn_list.index(book) + 1)
+            in_stock = book_inventory_sheet["E" + str(cell_row)]
             meta_dict = meta(book, service)
             authors_list = meta_dict["Authors"]
             authors = ",".join(authors_list)
