@@ -68,7 +68,6 @@ def register_book():
         
 # Allows the library to scan books in once returned.
 def check_in():
-    # TODO Print numbered list of people who checked out book for check in
     time = datetime.datetime.now()
     current_date = time.strftime('%d-%m-%Y %H:%M:%S')
     inventory_workbook = openpyxl.load_workbook("BookDatabase.xlsx")
@@ -93,7 +92,6 @@ def check_in():
                 checked_out_list.append([name, isbn, row_location])
                 if isbn == book:
                     revised_checked_out_list.append([name, row_location])
-                    print (revised_checked_out_list)
                 i += 1
             print ("Select the number next to the name of who is checking the book in:")
             n = 0
