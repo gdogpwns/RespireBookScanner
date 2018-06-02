@@ -75,32 +75,50 @@ def check_in():
     book_history_sheet = inventory_workbook["Check Out-In"]
     book_inventory_sheet = inventory_workbook["Book Inventory"]
     book = input("Scan barcode to check in or type 'menu': ")
+    print("")
     if book == "menu":
-        print("")
         main()
     else:
         inventory_isbn_list = []  # List of all ISBN numbers in Book Inventory sheet
-        checked_out_isbn_list = []  # List of all ISBN numbers in Check In-Out sheet
-        checked_out_row_list = []  # List of row locations that match inputted ISBN in Check In-Out sheet
+        checked_out_list = []  # List of all ISBN numbers in Check In-Out sheet
+        revised_checked_out_list = [] # List of all books that match the scanned ISBN that are checked out
         for row in book_inventory_sheet["C"]:
             inventory_isbn_list.append(row.value)
         if book in inventory_isbn_list:
-            inventory_cell_row = (inventory_isbn_list.index(book) + 1)
-            in_stock = book_inventory_sheet["E" + str(inventory_cell_row)]
-        for row in book_history_sheet["C"]:
-            checked_out_isbn_list.append(row.value)
-        if book in checked_out_isbn_list:
-            for row in checked_out_isbn_list:
-                checked_out_row_list.append(row)
             i = 0
-            print("")
-            print("Type in the number next to the name of who is checking in the book.")
-            while i <= (len(checked_out_row_list) - 1):
-                print(checked_out_row_list)
-                #name = book_history_sheet[("D" + str(checked_out_row_list[i]))].value
-                #print(name)
+            while i <= (len(inventory_isbn_list) - 1):
+                name = book_history_sheet["D" + str(i + 2)].value
+                isbn = book_history_sheet["C" + str(i + 2)].value
+                row_location = i + 2
+                checked_out_list.append([name, isbn, row_location])
+                if isbn == book:
+                    revised_checked_out_list.append([name, row_location])
+                    print (revised_checked_out_list)
                 i += 1
-                # print(str(i + 1) + ": " + )
+            print ("Select the number next to the name of who is checking the book in:")
+            n = 0
+            while n <= (len(revised_checked_out_list) - 1):
+                print(str(n + 1) + ": " + revised_checked_out_list[n][0])
+                n += 1
+            selected_number = int(input("Enter number next to name here: "))
+            if selected_number <= n and selected_number > 0:
+                print(str(selected_number))
+                selected_person = revised_checked_out_list[selected_number - 1][1]
+                book_history_sheet.delete_rows(selected_person, 1)
+                cell_row = (inventory_isbn_list.index(book) + 1)
+                in_stock = book_inventory_sheet["E" + str(cell_row)]
+                in_stock.value = (in_stock.value + 1)
+                inventory_workbook.save("BookDatabase.xlsx")
+            else:
+                print("")
+                print("Selected number is not an option. Please try again.")
+                print("")
+                check_in()
+            check_in()
+        elif book not in inventory_isbn_list:
+            print("ERROR: This book was never registered. Its ISBN number is not in the database.")
+            print("")
+            main()
     inventory_workbook.save("BookDatabase.xlsx")
 
 # Allows the library to scan books when checked out.
